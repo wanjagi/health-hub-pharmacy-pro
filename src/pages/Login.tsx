@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pills, Eye, EyeOff } from "lucide-react";
+import { Pill, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
@@ -42,7 +42,7 @@ const Login = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="p-3 rounded-full bg-blue-100">
-              <Pills className="h-8 w-8 text-blue-600" />
+              <Pill className="h-8 w-8 text-blue-600" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">

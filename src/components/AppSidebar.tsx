@@ -18,7 +18,7 @@ import {
   FileText,
   ShoppingCart,
   BarChart3,
-  Pills,
+  Pill,
 } from "lucide-react";
 
 const menuItems = [
@@ -31,8 +31,9 @@ const menuItems = [
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
+  const collapsed = state === "collapsed";
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -40,11 +41,11 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible>
+    <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="offcanvas">
       <SidebarContent className="bg-blue-900 text-white">
         <div className="p-4 border-b border-blue-800">
           <div className="flex items-center gap-2">
-            <Pills className="h-8 w-8 text-blue-300" />
+            <Pill className="h-8 w-8 text-blue-300" />
             {!collapsed && (
               <div>
                 <h2 className="font-bold text-lg">PharmaCare</h2>
