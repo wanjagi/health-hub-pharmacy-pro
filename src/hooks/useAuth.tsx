@@ -1,8 +1,18 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase, UserProfile } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+
+interface User {
+  id: string;
+  email: string;
+}
+
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: 'admin' | 'pharmacist' | 'cashier' | 'supplier';
+}
 
 interface AuthContextType {
   user: User | null;
@@ -15,6 +25,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock users for demo
+const mockUsers = [
+  { id: '1', email: 'admin@pharmacy.com', password: 'admin123', full_name: 'Admin User', role: 'admin' as const },
+  { id: '2', email: 'pharmacist@pharmacy.com', password: 'pharma123', full_name: 'John Pharmacist', role: 'pharmacist' as const },
+  { id: '3', email: 'cashier@pharmacy.com', password: 'cashier123', full_name: 'Jane Cashier', role: 'cashier' as const },
+];
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -22,54 +39,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    // Check for stored user
+    const storedUser = localStorage.getItem('pharmacy_user');
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      setUser({ id: userData.id, email: userData.email });
+      setProfile(userData);
     }
-  };
+    setLoading(false);
+  }, []);
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const foundUser = mockUsers.find(u => u.email === email && u.password === password);
+      
+      if (!foundUser) {
+        toast({
+          title: "Login Failed",
+          description: "Invalid email or password",
+          variant: "destructive",
+        });
+        return false;
+      }
 
-      if (error) throw error;
+      const userData = {
+        id: foundUser.id,
+        email: foundUser.email,
+        full_name: foundUser.full_name,
+        role: foundUser.role
+      };
+
+      setUser({ id: foundUser.id, email: foundUser.email });
+      setProfile(userData);
+      localStorage.setItem('pharmacy_user', JSON.stringify(userData));
 
       toast({
         title: "Login Successful",
@@ -89,32 +91,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, role: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: data.user.id,
-            email,
-            full_name: fullName,
-            role: role as any,
-          });
-
-        if (profileError) throw profileError;
-      }
-
+      // In a real app, this would create a new user
       toast({
         title: "Registration Successful",
-        description: "Please check your email to verify your account",
+        description: "Account created successfully. Please login.",
       });
-
       return true;
     } catch (error: any) {
       toast({
@@ -128,8 +109,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      setUser(null);
+      setProfile(null);
+      localStorage.removeItem('pharmacy_user');
 
       toast({
         title: "Logged Out",

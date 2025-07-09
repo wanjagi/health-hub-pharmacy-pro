@@ -11,6 +11,10 @@ import Customers from "./pages/Customers";
 import Prescriptions from "./pages/Prescriptions";
 import Sales from "./pages/Sales";
 import Reports from "./pages/Reports";
+import Suppliers from "./pages/Suppliers";
+import Purchases from "./pages/Purchases";
+import Expenses from "./pages/Expenses";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Layout from "./components/Layout";
@@ -47,9 +51,29 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="sales" element={<Sales />} />
+              <Route path="suppliers" element={
+                <ProtectedRoute allowedRoles={['admin', 'pharmacist']}>
+                  <Suppliers />
+                </ProtectedRoute>
+              } />
+              <Route path="purchases" element={
+                <ProtectedRoute allowedRoles={['admin', 'pharmacist']}>
+                  <Purchases />
+                </ProtectedRoute>
+              } />
+              <Route path="expenses" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Expenses />
+                </ProtectedRoute>
+              } />
               <Route path="reports" element={
                 <ProtectedRoute allowedRoles={['admin', 'pharmacist']}>
                   <Reports />
+                </ProtectedRoute>
+              } />
+              <Route path="settings" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Settings />
                 </ProtectedRoute>
               } />
             </Route>

@@ -37,6 +37,28 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleDemoLogin = (role: string) => {
+    let email = "";
+    let password = "";
+    
+    switch (role) {
+      case "admin":
+        email = "admin@pharmacy.com";
+        password = "admin123";
+        break;
+      case "pharmacist":
+        email = "pharmacist@pharmacy.com";
+        password = "pharma123";
+        break;
+      case "cashier":
+        email = "cashier@pharmacy.com";
+        password = "cashier123";
+        break;
+    }
+    
+    setCredentials({ email, password });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -99,6 +121,39 @@ const Login = () => {
             >
               {loading ? "Signing In..." : "Sign In"}
             </Button>
+
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600 text-center">Demo Accounts:</p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleDemoLogin("admin")}
+                >
+                  Admin
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleDemoLogin("pharmacist")}
+                >
+                  Pharmacist
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleDemoLogin("cashier")}
+                >
+                  Cashier
+                </Button>
+              </div>
+            </div>
 
             <div className="text-center text-sm">
               <p className="text-gray-600">
