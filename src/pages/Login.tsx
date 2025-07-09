@@ -1,39 +1,40 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pill, Eye, EyeOff } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { signIn, user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
     password: ""
   });
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Simple demo authentication
-    if (credentials.email === "admin@pharmacy.com" && credentials.password === "admin123") {
-      toast({
-        title: "Login Successful",
-        description: "Welcome to PharmaCare Management System",
-      });
+  useEffect(() => {
+    if (user) {
       navigate("/");
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid email or password",
-        variant: "destructive",
-      });
     }
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const success = await signIn(credentials.email, credentials.password);
+    
+    if (success) {
+      navigate("/");
+    }
+    
+    setLoading(false);
   };
 
   return (
@@ -91,15 +92,20 @@ const Login = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={loading}
+            >
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
 
-            <div className="text-center text-sm text-gray-600 mt-4">
-              <p>Demo Credentials:</p>
-              <p className="font-mono text-xs mt-1">
-                Email: admin@pharmacy.com<br />
-                Password: admin123
+            <div className="text-center text-sm">
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <Link to="/register" className="text-blue-600 hover:underline">
+                  Sign Up
+                </Link>
               </p>
             </div>
           </form>
